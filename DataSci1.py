@@ -1,6 +1,6 @@
+import pandas as pd
+import numpy as np
+import matplotlib as plt
 
+df = pd.read_csv("/Users/jayjeble/Documents/SZ/train.csv")
 
-import matplotlib.pyplot as plt
-plt.plot([1,2,3,4])
-plt.ylabel('some numbers')
-plt.show()
