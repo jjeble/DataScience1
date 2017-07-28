@@ -41,3 +41,33 @@ for i in var_mod:
     print(i)
     df[i] = le.fit_transform(df[i])
 print(df.dtypes)
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import KFold   #For K-fold cross validation
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn import metrics
+
+
+
+def classification_model(model,data,predictors,outcome):
+    model.fit(data[predictors],data[outcome])
+
+    predictions = model.predict(data[predictors])
+
+    accuracy = metrics.accuracy_score(predictions,data[outcome])
+    print("Accuracy : %s" % "{0:.3%}".format(accuracy))
+
+    kf = KFold(data.shape[0],n_folds=5)
+    error= []
+    for train,test in kf:
+        train_predictors = (data[predictors].iloc[train,:])
+        train_target = data[outcome].iloc[train]
+        model.fit(train_predictors,train_target)
+        error.append(model.score(data[predictors].iloc[test,:], data[outcome].iloc[test]))
+ 
+  print("Cross-Validation Score : %s" % "{0:.3%}".format(np.mean(error)))
+
+  #Fit the model again so that it can be refered outside the function:
+  model.fit(data[predictors],data[outcome]) 
+
