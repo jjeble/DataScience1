@@ -21,6 +21,6 @@ def fage(x):
  return table.loc[x['Self_Employed'],x['Gender']]
 ##
 
-df['Loan_Amount'].fillna(df[df['LoanAmount'].isnull()].apply(fage, axis=1), inplace=True)
+df['LoanAmount'].fillna(df[df['LoanAmount'].isnull()].apply(fage, axis=1), inplace=True)
 print(df.apply(lambda x: sum(x.isnull()),axis=0))
 plt.show()
