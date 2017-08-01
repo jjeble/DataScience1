@@ -1,4 +1,5 @@
 
+
 from sklearn import datasets, linear_model
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
@@ -50,13 +51,16 @@ for i in var_mod:
     df[i] = le.fit_transform(df[i])
 print(df.dtypes)
 
+df['LoanAmount_log'] = np.log(df['LoanAmount'])
+
 def classification_model(model, data, predictors, outcome):
   #Fit the model:
   model.fit(data[predictors],data[outcome])
   
   #Make predictions on training set:
   predictions = model.predict(data[predictors])
-  
+  print("Preictions " + str(predictions))
+  print("Actual " + str(data[outcome]))
   #Print accuracy
   accuracy = metrics.accuracy_score(predictions,data[outcome])
   print("Accuracy : %s" % "{0:.3%}".format(accuracy))
@@ -81,9 +85,9 @@ def classification_model(model, data, predictors, outcome):
 
   #Fit the model again so that it can be refered outside the function:
   model.fit(data[predictors],data[outcome]) 
-outcome_var = 'Loan_Status'
-model = LogisticRegression()
-predictor_var= ['Credit_History','Education','Married','Self_Employed']
-print(classification_model(model,df,predictor_var,outcome_var))
+outcome_var = 'ApplicantIncome'
+model = DecisionTreeClassifier()
+predictor_var = ['LoanAmount']
+classification_model(model, df,predictor_var,outcome_var)
 
 plt.show()
