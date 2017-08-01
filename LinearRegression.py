@@ -86,4 +86,4 @@ model = LogisticRegression()
 predictor_var= ['Credit_History','Education','Married','Self_Employed']
 print(classification_model(model,df,predictor_var,outcome_var))
 
-plt.show(
+plt.show()
