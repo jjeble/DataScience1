@@ -1,11 +1,15 @@
 
-
 from sklearn import datasets, linear_model
-
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import KFold   #For K-fold cross validation
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn import metrics
 
 
 
@@ -45,18 +49,41 @@ for i in var_mod:
     print(i)
     df[i] = le.fit_transform(df[i])
 print(df.dtypes)
-inc_xtrain = df[:-20]
-inc_xtest = df[-20:]
-inc_ytrain = df['LoanAmount'][:-20]
-inc_ytest = df['LoanAmount'][-20:]
-regr = linear_model.LinearRegression()
-regr.fit(inc_xtrain,inc_ytrain)
-print(regr.coef_)
-plt.scatter(inc_xtest, inc_ytest,  color='black')
-plt.plot(inc_xtest, regr.predict(inc_xtest), color='blue',
-         linewidth=3)
 
-plt.xticks(())
-plt.yticks(())
+def classification_model(model, data, predictors, outcome):
+  #Fit the model:
+  model.fit(data[predictors],data[outcome])
+  
+  #Make predictions on training set:
+  predictions = model.predict(data[predictors])
+  
+  #Print accuracy
+  accuracy = metrics.accuracy_score(predictions,data[outcome])
+  print("Accuracy : %s" % "{0:.3%}".format(accuracy))
+
+  #Perform k-fold cross-validation with 5 folds
+  kf = KFold(data.shape[0], n_folds=5)
+  error = []
+  for train, test in kf:
+    # Filter training data
+    train_predictors = (data[predictors].iloc[train,:])
+    
+    # The target we're using to train the algorithm.
+    train_target = data[outcome].iloc[train]
+    
+    # Training the algorithm using the predictors and target.
+    model.fit(train_predictors, train_target)
+    
+    #Record error from each cross-validation run
+    error.append(model.score(data[predictors].iloc[test,:], data[outcome].iloc[test]))
+ 
+  print("Cross-Validation Score : %s" % "{0:.3%}".format(np.mean(error)))
+
+  #Fit the model again so that it can be refered outside the function:
+  model.fit(data[predictors],data[outcome]) 
+outcome_var = 'Loan_Status'
+model = LogisticRegression()
+predictor_var= ['Credit_History','Education','Married','Self_Employed']
+print(classification_model(model,df,predictor_var,outcome_var))
 
 plt.show()
