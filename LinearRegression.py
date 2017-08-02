@@ -90,10 +90,11 @@ def classification_model(model, data, predictors, outcome):
   print("Cross-Validation Score : %s" % "{0:.3%}".format(np.mean(error)))
 
   #Fit the model again so that it can be refered outside the function:
-  model.fit(data[predictors],data[outcome]) 
+  model.fit(data[predictors],data[outcome])
 outcome_var = 'Loan_Status'
-model = KNeighborsClassifier(n_neighbors= 40)
+model = DecisionTreeClassifier()
 predictor_var = ['Credit_History']
 classification_model(model, df,predictor_var,outcome_var)
+
 
 plt.show()
