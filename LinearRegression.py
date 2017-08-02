@@ -11,6 +11,7 @@ from sklearn.cross_validation import KFold   #For K-fold cross validation
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn import metrics
+from sklearn.neighbors import KNeighborsClassifier
 
 
 
@@ -20,6 +21,7 @@ print(df.apply(lambda x: sum(x.isnull()),axis=0))
 
 print(df['Gender'].value_counts())
 print(df['Dependents'].value_counts())
+
 
 
 df['Self_Employed'].fillna('No',inplace=True)
@@ -52,6 +54,8 @@ for i in var_mod:
 print(df.dtypes)
 
 df['LoanAmount_log'] = np.log(df['LoanAmount'])
+df['TotalIncome'] = df['ApplicantIncome'] + df['CoapplicantIncome']
+df['TotalIncome_log'] = np.log(df['TotalIncome'])
 
 def classification_model(model, data, predictors, outcome):
   #Fit the model:
@@ -64,6 +68,8 @@ def classification_model(model, data, predictors, outcome):
   #Print accuracy
   accuracy = metrics.accuracy_score(predictions,data[outcome])
   print("Accuracy : %s" % "{0:.3%}".format(accuracy))
+
+ 
 
   #Perform k-fold cross-validation with 5 folds
   kf = KFold(data.shape[0], n_folds=5)
@@ -85,9 +91,9 @@ def classification_model(model, data, predictors, outcome):
 
   #Fit the model again so that it can be refered outside the function:
   model.fit(data[predictors],data[outcome]) 
-outcome_var = 'ApplicantIncome'
-model = DecisionTreeClassifier()
-predictor_var = ['LoanAmount']
+outcome_var = 'Loan_Status'
+model = KNeighborsClassifier(n_neighbors= 40)
+predictor_var = ['Credit_History']
 classification_model(model, df,predictor_var,outcome_var)
 
 plt.show()
