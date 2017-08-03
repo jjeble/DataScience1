@@ -11,6 +11,7 @@ from sklearn.cross_validation import KFold   #For K-fold cross validation
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn import metrics
+from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -92,7 +93,7 @@ def classification_model(model, data, predictors, outcome):
   #Fit the model again so that it can be refered outside the function:
   model.fit(data[predictors],data[outcome])
 outcome_var = 'Loan_Status'
-model = DecisionTreeClassifier()
+model = GaussianNB()
 predictor_var = ['Credit_History']
 classification_model(model, df,predictor_var,outcome_var)
 
