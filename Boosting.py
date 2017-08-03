@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn import cross_validation, metrics
-from sklearn.grid_search import GridSearchCV
+import xgboost as xgb
+from xgboost.sklearn import XGBClassifier
+from sklearn import cross_validation, metrics   #Additional scklearn functions
+from sklearn.grid_search import GridSearchCV   #Perforing grid search
+
 
 import matplotlib.pylab as plt
 
@@ -17,38 +19,45 @@ target = 'Disbursed'
 IDcol = 'ID'
 
 
-def modelfit(alg, dtrain, predictors, performCV = True, printFeatureImportance = True, cv_folds = 5):
-    alg.fit(dtrain[predictors], dtrain['Disbursed'])
-
+def modelfit(alg, dtrain, predictors,useTrainCV=True, cv_folds=5, early_stopping_rounds=50):
+    
+    if useTrainCV:
+        xgb_param = alg.get_xgb_params()
+        xgtrain = xgb.DMatrix(dtrain[predictors].values, label=dtrain[target].values)
+        cvresult = xgb.cv(xgb_param, xgtrain, num_boost_round=alg.get_params()['n_estimators'], nfold=cv_folds,
+            metrics='auc', early_stopping_rounds=early_stopping_rounds, show_progress=False)
+        alg.set_params(n_estimators=cvresult.shape[0])
+    
+    #Fit the algorithm on the data
+    alg.fit(dtrain[predictors], dtrain['Disbursed'],eval_metric='auc')
+        
+    #Predict training set:
     dtrain_predictions = alg.predict(dtrain[predictors])
     dtrain_predprob = alg.predict_proba(dtrain[predictors])[:,1]
-
-    if performCV:
-        cv_score = cross_validation.cross_val_score(alg, dtrain[predictors], dtrain['Disbursed'], cv=cv_folds, scoring='roc_auc')
-    
+        
     #Print model report:
     print("\nModel Report")
     print("Accuracy : %.4g" % metrics.accuracy_score(dtrain['Disbursed'].values, dtrain_predictions))
     print("AUC Score (Train): %f" % metrics.roc_auc_score(dtrain['Disbursed'], dtrain_predprob))
-    
-    if performCV:
-        print("CV Score : Mean - %.7g | Std - %.7g | Min - %.7g | Max - %.7g" % (np.mean(cv_score),np.std(cv_score),np.min(cv_score),np.max(cv_score)))
-        
-    #Print Feature Importance:
-    if printFeatureImportance:
-        feat_imp = pd.Series(alg.feature_importances_, predictors).sort_values(ascending=False)
-        feat_imp.plot(kind='bar', title='Feature Importances')
-        plt.ylabel('Feature Importance Score')
+                    
+    feat_imp = pd.Series(alg.booster().get_fscore()).sort_values(ascending=False)
+    feat_imp.plot(kind='bar', title='Feature Importances')
+    plt.ylabel('Feature Importance Score')
 
 #Choose all predictors except target & IDcols
-predictors = [x for x in train.columns if x not in [target, IDcol]]
-param_test1 = {'n_estimators':['20','40']}
-gsearch1 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, min_samples_split=500,min_samples_leaf=50,max_depth=8,max_features='sqrt',subsample=0.8,random_state=10), 
-param_grid = param_test1, scoring='roc_auc',n_jobs=4,iid=False, cv=5)
-gsearch1.fit(train[predictors],train[target])
-print(gsearch1.grid_scores_)
-print(gsearch1.best_params_)
-print(gsearch1.best_score_)
-##gbm0 = GradientBoostingClassifier(random_state=10)
-##modelfit(gbm0, train, predictors)
-##plt.show()
+ppredictors = [x for x in train.columns if x not in [target, IDcol]]
+xgb1 = XGBClassifier(
+ learning_rate =0.1,
+ n_estimators=1000,
+ max_depth=5,
+ min_child_weight=1,
+ gamma=0,
+ subsample=0.8,
+ colsample_bytree=0.8,
+ objective= 'binary:logistic',
+ nthread=4,
+ scale_pos_weight=1,
+ seed=27)
+modelfit(xgb1, train, predictors)
+
+plt.show()
