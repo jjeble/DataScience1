@@ -20,7 +20,7 @@ ax1.set_ylabel('Count of people')
 #temp1.plot(kind = 'bar')
 
 ax2 =  fig.add_subplot(122)
-#temp2.plot(kind='bar')
+
 ax2.set_xlabel('Category')
 ax2.set_ylabel('Probablility of Unemployment')
 
