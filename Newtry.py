@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import io
 import requests
-url="https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/recent-grads.csv"
+url="https://raw.githubusercontent.com/fiethirtyeight/data/master/college-majors/recent-grads.csv"
 s=requests.get(url).content
 df=pd.read_csv(io.StringIO(s.decode('utf-8')))
 
