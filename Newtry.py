@@ -13,9 +13,19 @@ temp2 = df.pivot_table(values = 'Unemployment_rate', index = ['Major_category'],
 print(df.apply(lambda x:sum(x.isnull()),axis=0))
 x = df.loc[(df['Major_category'] == 'Agriculture & Natural Resources') & (df['Men']!=np.nan),('Men')].sum()
 y = df.loc[(df['Major_category'] == 'Agriculture & Natural Resources') & (df['Women']!=np.nan),('Women')].sum()
-print(y/(x+y))
+
 z = df.loc[(df['Major_category'] == 'Agriculture & Natural Resources') & (df['Men']!=np.nan)]
-print(z)
+
+
+df['Men'].fillna(int(df['Men'].mean()), inplace=True)
+df['Women'].fillna(int(df['Women'].mean()), inplace=True)
+df['Total'].fillna(df['Men']+df['Women'], inplace=True)
+df['ShareWomen'].fillna(df['Women']/df['Total'], inplace=True)
+
+print(df.head(25))
+
+
+
 
 
 
