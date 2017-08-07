@@ -12,15 +12,8 @@ temp2 = df.pivot_table(values = 'Unemployment_rate', index = ['Major_category'],
 
 print(df.apply(lambda x:sum(x.isnull()),axis=0))
 
-df['Men'].fillna(int(df['Men'].mean()), inplace = True)
-df['Women'].fillna(int(df['Women'].mean()), inplace = True)
-df['Total'].fillna(df['Men']+df['Women'], inplace = True)
-print(df.head(25))
-
-
-
-
-
+table = df.pivot_table(values='Men',index='Major_category',columns='Part_time')
+print(table)
 
 
 
