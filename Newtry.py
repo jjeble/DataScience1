@@ -11,9 +11,10 @@ temp1 = df['Major_category'].value_counts(ascending = True)
 temp2 = df.pivot_table(values = 'Unemployment_rate', index = ['Major_category'],aggfunc = lambda x: x.mean())
 
 print(df.apply(lambda x:sum(x.isnull()),axis=0))
+x = df.loc[(df['Major_category'] == 'Agriculture & Natural Resources') & (df['Men']!=np.nan),('Men')].sum()
+y = df.loc[(df['Major_category'] == 'Agriculture & Natural Resources') & (df['Women']!=np.nan),('Women')].sum()
+print(x/y)
 
-table = df.pivot_table(values='Men',index='Major_category',columns='Part_time')
-print(table)
 
 
 
