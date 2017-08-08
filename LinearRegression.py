@@ -21,9 +21,11 @@ forecast_col = 'Adj. Close'
 df.fillna(-99999, inplace = True)
 
 forecast_out = int(math.ceil(0.01*len(df)))
+print(df.head(60))
 df['label'] = df[forecast_col].shift(-forecast_out)
+print(df.head(60))
 df.dropna(inplace=True)
-print(df.head())
+
 
 X = np.array(df.drop(['label'],1))
 y = np.array(df['label'])
