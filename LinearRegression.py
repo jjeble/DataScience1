@@ -1,9 +1,13 @@
 import pandas as pd
 import quandl
-import math
+import math, datetime
 import numpy as np
 from sklearn import preprocessing, cross_validation, svm
 from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+from matplotlib import style
+style.use('ggplot')
+
 df = quandl.get('WIKI/GOOGL')
 
 
@@ -23,14 +27,19 @@ df.fillna(-99999, inplace = True)
 forecast_out = int(math.ceil(0.01*len(df)))
 print(df.head(60))
 df['label'] = df[forecast_col].shift(-forecast_out)
-print(df.head(60))
-df.dropna(inplace=True)
+
+
 
 
 X = np.array(df.drop(['label'],1))
+X  = preprocessing.scale(X)
+X = X[:-forecast_out]
+X_lately = X[-forecast_out:]
+
+
 y = np.array(df['label'])
 
-X  = preprocessing.scale(X)
+
 
 
 df.dropna(inplace = True)
@@ -42,4 +51,26 @@ clf = LinearRegression()
 clf.fit(X_train, y_train)
 
 accuracy = clf.score(X_test,y_test)
-print(accuracy)
+
+forecast_set = clf.predict(X_lately)
+
+print(forecast_set, accuracy, forecast_out)
+
+df['Forecast'] = np.nan
+last_date = df.iloc[-1].name
+last_unix = last_date.timestamp()
+one_day = 86400
+next_unix = last_unix + one_day
+for i in forecast_set:
+    next_date = datetime.datetime.fromtimestamp(next_unix)
+    next_unix += one_day
+    df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)] + [i]
+df['Adj. Close'].plot()
+df['Forecast'].plot()
+print(df.tail(50))
+plt.legend(loc=4)
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
+
+#print(accuracy)
