@@ -35,7 +35,7 @@ def coefficient_of_determination(ys_orig,ys_line):
     squared_error_y_mean = squared_error(ys_orig,y_mean_line)
     return 1 - (squared_error_regr/squared_error_y_mean)
 
-xs, ys = create_dataset(40, 40, 2, correlation = 'pos')
+xs, ys = create_dataset(40, 10, 2, correlation = 'pos')
 
 m, b = best_fit_slope_and_intercept(xs,ys)
 
@@ -48,7 +48,7 @@ r_squared= coefficient_of_determination(ys, regression_line)
 print(r_squared)
 #print(predict_y)
 plt.scatter(xs,ys)
-plt.scatter(predict_x,predict_y, s=1000,color='g')
+plt.scatter(predict_x,predict_y, s=100,color='g')
 plt.plot(xs,regression_line)
 plt.show()
 
